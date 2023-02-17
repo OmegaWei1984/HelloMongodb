@@ -5,12 +5,12 @@
 ##  起步
 
 切换到某个 `db`，如果 `db` 不存在就会被创建。
-```mongosh
+```
 use examples;
 db;
 ```
 插入文档。
-```mongosh
+```
 db.movies.insertMany([
    {
       title: 'Titanic',
@@ -76,20 +76,20 @@ db.movies.insertMany([
 ])
 ```
 查找全部内容
-```mongosh
+```
 db.movies.find( { } )
 ```
 也可以这样写，在 `collection` 的名字有特殊字符的时候可以用到。
-```mongosh
+```
 db["movies"].find()
 ```
 对查询进行过滤。
-```mongosh
+```
 db.movies.find( { "directors": "Christopher Nolan" } );
 db.movies.find( { "released": { $lt: ISODate("2000-01-01") } } );
 ```
 多个条件
-```mongosh
+```
 db.movies.find( { "released": { $lt: ISODate("2000-01-01") }, "directors": "James Cameron" } )
 ```
 有以下关系运算符
@@ -105,12 +105,12 @@ db.movies.find( { "released": { $lt: ISODate("2000-01-01") }, "directors": "Jame
 |$nin|不在 arr 中的，Matches none of the values specified in an array.|
 
 控制返回的字段
-```mongosh
+```
 db.movies.find( { }, { "title": 1, "directors": 1, "year": 1 } );
 db.movies.find( { }, { "_id": 0, "title": 1, "genres": 1 } );
 ```
 聚合数据
-```mongosh
+```
 db.movies.aggregate( [
    { $unwind: "$genres" },
    {
@@ -125,3 +125,59 @@ db.movies.aggregate( [
 - `$group` 按 `genres` 分组。
 - `$count` 对 `genres` 进行 `count`。
 - `$sort` 排序，升序为 `-1`（后项小于前项），反之降序为 `1`（后项大于前项）。
+
+## Databases and Collections
+
+创建 `collection`
+```
+db.c1.insertOne({x:1})
+db.c2.createIndex({y:1})
+```
+`collection` 不存在时，直接插入或者创建 `index` 都会进行创建。
+```
+example> db.c1.find({})
+[ { _id: ObjectId("63eefeb076d38ba98289dd05"), x: 1 } ]
+example> db.c2.find({})
+
+```
+直接进行创建
+```
+db.createCollection("c3")
+```
+查看全部 `collection`
+```
+db.getCollectionInfos()
+```
+
+### view
+`view` 是 `mongodb` 中的只读对象/视图，类似 `MySQL` 中的视图。
+
+创建一个 `view`。
+```
+db.createView(
+    "Nolan's Movie",
+    "movies",
+    [ { $match: { "directors": 'Christopher Nolan' } } ]
+)
+```
+使用 `db.createCollection()` 创建 `view`
+```
+db.createCollection(
+   "Nolan's Moive II",
+   {
+      viewOn: "movies",
+      pipeline: [ { $match: {"directors": 'Christopher Nolan'} } ]
+    }
+)
+```
+```
+show collections;
+Nolan's Moive II  [view]
+Nolan's Movie     [view]
+```
+查看 `view`
+```
+db["Nolan's Movie"].find({})
+```
+
+
