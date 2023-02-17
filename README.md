@@ -75,7 +75,7 @@ db.movies.insertMany([
    }
 ])
 ```
-查找全部内容
+查找全部内容。
 ```
 db.movies.find( { } )
 ```
@@ -88,7 +88,7 @@ db["movies"].find()
 db.movies.find( { "directors": "Christopher Nolan" } );
 db.movies.find( { "released": { $lt: ISODate("2000-01-01") } } );
 ```
-多个条件
+通过多个条件进行过滤。
 ```
 db.movies.find( { "released": { $lt: ISODate("2000-01-01") }, "directors": "James Cameron" } )
 ```
@@ -104,7 +104,7 @@ db.movies.find( { "released": { $lt: ISODate("2000-01-01") }, "directors": "Jame
 |$ne|不等于，Matches all values that are not equal to a specified value.|
 |$nin|不在 arr 中的，Matches none of the values specified in an array.|
 
-控制返回的字段
+可以通过 `find()` 的第二个参数控制要返回那些字段。
 ```
 db.movies.find( { }, { "title": 1, "directors": 1, "year": 1 } );
 db.movies.find( { }, { "_id": 0, "title": 1, "genres": 1 } );
@@ -128,23 +128,21 @@ db.movies.aggregate( [
 
 ## Databases and Collections
 
-创建 `collection`
+创建 `collection`，当 `collection` 不存在时，直接插入或者创建 `index` 都会进行创建。
 ```
 db.c1.insertOne({x:1})
 db.c2.createIndex({y:1})
 ```
-`collection` 不存在时，直接插入或者创建 `index` 都会进行创建。
 ```
 example> db.c1.find({})
 [ { _id: ObjectId("63eefeb076d38ba98289dd05"), x: 1 } ]
 example> db.c2.find({})
-
 ```
-直接进行创建
+直接进行创建。
 ```
 db.createCollection("c3")
 ```
-查看全部 `collection`
+查看全部 `collection`。
 ```
 db.getCollectionInfos()
 ```
@@ -160,7 +158,7 @@ db.createView(
     [ { $match: { "directors": 'Christopher Nolan' } } ]
 )
 ```
-使用 `db.createCollection()` 创建 `view`
+也可以使用 `db.createCollection()` 创建 `view`。
 ```
 db.createCollection(
    "Nolan's Moive II",
@@ -175,9 +173,8 @@ show collections;
 Nolan's Moive II  [view]
 Nolan's Movie     [view]
 ```
-查看 `view`
+对 `view` 进行查看。
 ```
 db["Nolan's Movie"].find({})
 ```
-
 
