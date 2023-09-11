@@ -1,32 +1,39 @@
 # Hello, Mongodb
 
-- [MongoDB Documentation](https://www.mongodb.com/docs/manual/tutorial/getting-started/)
+[MongoDB Documentation](https://www.mongodb.com/docs/manual/tutorial/getting-started/) 的笔记和实践
 
-##  起步
+##  基础和 CRUD
 
 切换到某个 `db`，如果 `db` 不存在就会被创建。
 ```
 use examples;
 db;
 ```
-插入文档。
+### 插入文档
+
+插入单个
+```
+db.movies.insertOne(
+   {
+      title: 'The Dark Knight',
+      year: 2008,
+      genres: [ 'Action', 'Crime', 'Drama' ],
+      rated: 'PG-13',
+      languages: [ 'English', 'Mandarin' ],
+      released: ISODate("2008-07-18T00:00:00.000Z"),
+      awards: {
+         wins: 144,
+         nominations: 106,
+         text: 'Won 2 Oscars. Another 142 wins & 106 nominations.'
+      },
+      cast: [ 'Christian Bale', 'Heath Ledger', 'Aaron Eckhart', 'Michael Caine' ],
+      directors: [ 'Christopher Nolan' ]
+   }
+)
+```
+插入多个
 ```
 db.movies.insertMany([
-   {
-      title: 'Titanic',
-      year: 1997,
-      genres: [ 'Drama', 'Romance' ],
-      rated: 'PG-13',
-      languages: [ 'English', 'French', 'German', 'Swedish', 'Italian', 'Russian' ],
-      released: ISODate("1997-12-19T00:00:00.000Z"),
-      awards: {
-         wins: 127,
-         nominations: 63,
-         text: 'Won 11 Oscars. Another 116 wins & 63 nominations.'
-      },
-      cast: [ 'Leonardo DiCaprio', 'Kate Winslet', 'Billy Zane', 'Kathy Bates' ],
-      directors: [ 'James Cameron' ]
-   },
    {
       title: 'The Dark Knight',
       year: 2008,
@@ -75,6 +82,9 @@ db.movies.insertMany([
    }
 ])
 ```
+
+### 查找文档
+
 查找全部内容。
 ```
 db.movies.find( { } )
@@ -104,7 +114,21 @@ db.movies.find( { "released": { $lt: ISODate("2000-01-01") }, "directors": "Jame
 |$ne|不等于，Matches all values that are not equal to a specified value.|
 |$nin|不在 arr 中的，Matches none of the values specified in an array.|
 
-可以通过 `find()` 的第二个参数控制要返回那些字段。
+多个并列的条件为 `and`
+```
+db.movies.find({
+   rated: "PG",
+   year: { $gte: 1942 }
+})
+```
+使用 `$or` 来表示 `or` 的关系
+```
+db.movies.find({
+   $or: [{ rated: "PG" }, { year: { $gte: 1998 }}]
+})
+``` 
+
+可以通过 `find()` 的第二个参数进行过滤控制要返回那些字段。
 ```
 db.movies.find( { }, { "title": 1, "directors": 1, "year": 1 } );
 db.movies.find( { }, { "_id": 0, "title": 1, "genres": 1 } );
@@ -148,7 +172,7 @@ db.getCollectionInfos()
 ```
 
 ### view
-`view` 是 `mongodb` 中的只读对象/视图，类似 `MySQL` 中的视图。
+`view` 是 `mongodb` 中的只读对象/视图，类似 `MySQL` 中的视图。标准视图（standard views）不会被保存到磁盘上，视图是进行查询的时候计算出来的。
 
 创建一个 `view`。
 ```
@@ -177,4 +201,3 @@ Nolan's Movie     [view]
 ```
 db["Nolan's Movie"].find({})
 ```
-
